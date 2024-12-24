@@ -4,9 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="estilo3.css">
 </head>
 <body>
-    <h1>esto es el 3</h1>
+    <div id="formul">
+        <p></p>
+        <form id="formulario">
+        <label for="pregunta">Pregunta</label>
+        <input id="pregunta" name="pregunta" type="text"><br><br>
+
+            <label>
+                <input type="radio" name="respuesta" value="true">
+                Verdadero
+            </label>
+            <label>
+                <input type="radio" name="respuesta" value="false">
+                Falso
+            </label><br><br>
+            <label for="puntuacion">Puntuacion</label>
+            <input id="puntuacion" name="puntuacion" type="text"><br><br>
+            <button id="atras" type="button">Atras</button>
+            <button id="guardar" type="button">Guardar</button>
+        </form>
+    </div>
+    <div >
+        <p id="carga"></p>
+        <table id="preguntasTable">
+            <tr>
+                <th>Nº</th>
+                <th>Pregunta</th>
+                <th>Solucion</th>
+                <th>Puntuacion</th>
+                <th>Estado</th>
+            </tr>
+        </table>
+    </div>
+
     <script src="3.js"></script>
 </body>
 </html>

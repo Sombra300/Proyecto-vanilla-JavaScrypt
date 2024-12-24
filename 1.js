@@ -13,28 +13,49 @@ body.addEventListener('keydown', function(event){
 setTimeout(ocultarDiv1, 5000);
 
 function ocultarDiv1(){
-    div1.className="oculto"
     document.getElementById('h1').textContent=""
+    div1.className="oculto"
 }
 
 label.addEventListener('blur',function(){
     let nombre=document.getElementById('nombre').value
     let esCorreo=/^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (esCorreo.test(nombre)){
-        console.log('se guardara como '+nombre)
         boton.className=""
     }else{
         window.alert("el usuario tiene que ser un correo")
+        boton.className = "des"
     }
 })
 
-if(correoVal==true){
-    boton.className=''
-}
+boton.addEventListener('click', function () {
+    let correo = document.getElementById('nombre').value
+    let fechaActual = new Date().toISOString()
+    let correoUsuario = correo
+    if (getCookie(correoUsuario)) {
+        // Obtener valor actual de la cookie
+        let cookieActual = getCookie(correoUsuario)
 
-boton.addEventListener('click', function(){
-    setCookie('nombreUsuario') 
-    //window.location.href="index2.html"
+        // Descomponer la cookie en sus valores
+        let [correoCookie, fechaAnterior, ultimaFecha] = cookieActual.split(',')
+
+        // Comprobar si el correo coincide (opcional si se usa nombre único)
+        if (correoCookie === correo) {
+            // Actualizar la cookie con las nuevas fechas
+            let nuevoValor = `${correo},${ultimaFecha},${fechaActual}`
+            setCookie('correoUsuario', nuevoValor, 100) // Actualizar cookie (1 día de duración)
+        }
+    } else {
+        // Crear nueva cookie si no existe
+        let nuevoValor = `${correo},${fechaActual},${fechaActual}`
+        setCookie('correoUsuario', nuevoValor, 100) // Crear cookie (1 día de duración)
+    }
+    try {
+        window.location = "index2.html"
+    } catch (error) {
+        console.error("Error en la redirección:", error)
+        window.alert("No se pudo redirigir a la siguiente pantalla.")
+    }
 })
 
 //codigo cookies
@@ -65,11 +86,7 @@ function deleteCookie(cname) {
     }
 
 
-function checkCookie() {
-    var user = getCookie("guardaNombre");
-    if (user != "") {
-        textoCambia.textContent='Hola '+user
-    } else {
-       
-    }
-}
+
+
+
+
