@@ -83,24 +83,13 @@ guardarBtn.addEventListener('click', function () {
                         actualizarEstadoFila(preguntaRealizada, "ERROR")
                     }
                 })
-                .finally(() => resetFormulario())
         } else {
             window.alert("Algún valor no es válido. Verifica los campos.")
         }
     }
 })
 
-// Vaciar el formulario
-function resetFormulario() {
-    pregunta.value = ""
-    puntuacion.value = ""
-    for (let radio of radios) {
-        radio.checked = false
-    }
-    compPreg = false
-    compPunt = false
-    compResp = false
-}
+
 
 // Guarda una pregunta en las cookies
 function guardarPregunta(pregunta, respuesta, puntuacion) {
