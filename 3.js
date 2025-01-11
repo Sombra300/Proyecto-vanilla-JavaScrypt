@@ -1,7 +1,7 @@
 let atrasBtn = document.getElementById('atras')
 let guardarBtn = document.getElementById('guardar')
 let tablaPreguntas = document.getElementById('preguntasTable')
-let textoCarga =document.getElementById('carga')
+let textoCarga = document.getElementById('carga')
 let pregunta = document.getElementById('pregunta')
 let puntuacion = document.getElementById('puntuacion')
 let radios = document.getElementsByName("respuesta")
@@ -10,8 +10,12 @@ let compPreg = false
 let compPunt = false
 let compResp = false
 
-// Mostrar las preguntas almacenadas al cargar la página
-// Si es true pondra un retraso de 5 segundos antes de mostrar las preguntas
+// Función para simular un retraso con promesas
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+// Mostrar las preguntas almacenadas al cargar la página con o sin retraso
 window.addEventListener('load', function () {
     mostrarPreguntas(window.confirm("Poner un delay?"))
 })
@@ -25,7 +29,7 @@ atrasBtn.addEventListener('click', function () {
     }
 })
 
-// Comprobar si pregunta esta vacio
+// Comprobar si el campo de la pregunta está vacío
 pregunta.addEventListener('blur', function () {
     let preguntaRealizada = pregunta.value
     if (preguntaRealizada !== '') {
@@ -36,7 +40,7 @@ pregunta.addEventListener('blur', function () {
     }
 })
 
-// comprobar si la pregunta tiene una puntuacion
+// Comprobar si el campo de puntuación tiene un valor válido
 puntuacion.addEventListener('blur', function () {
     let puntuacionOtorgada = puntuacion.value
     if (puntuacionReg.test(puntuacionOtorgada)) {
@@ -47,9 +51,8 @@ puntuacion.addEventListener('blur', function () {
     }
 })
 
-// guardar la pregunta
+// Guardar la pregunta
 guardarBtn.addEventListener('click', function () {
-    //obtener el valor de la respuesta
     let seleccionado = null
     for (let radio of radios) {
         if (radio.checked) {
@@ -57,34 +60,30 @@ guardarBtn.addEventListener('click', function () {
         }
     }
 
-    //Comprueba si seleccionado esta vacio
     if (seleccionado == null) {
-        //si esta vacio no se guardara la pregunta
         compResp = false
         window.alert("Necesitas seleccionar el valor de la respuesta.")
     } else {
         compResp = true
-        //si los campos son correctos intenta guardar la pregunta
-        if (compPreg==true && compPunt==true && compResp==true) {
+        if (compPreg && compPunt && compResp) {
             let preguntaRealizada = pregunta.value
             let puntuacionOtorgada = puntuacion.value
 
             // Mostrar "Guardando..." en la tabla
             agregarFilaTemporal(preguntaRealizada, seleccionado, puntuacionOtorgada)
 
-            // Simular guardado con retraso de 5 segundos
-            setTimeout(function () {
-                try {
-                    let estado = guardarPregunta(preguntaRealizada, seleccionado, puntuacionOtorgada)
-                    actualizarEstadoFila(preguntaRealizada, estado)
-                } catch (error) {
-                    console.error("Error al guardar la pregunta:", error)
-                    actualizarEstadoFila(preguntaRealizada, "ERROR")
-                }
-            }, 5000)
-
-            // Reiniciar el formulario
-            resetFormulario()
+            // Guardar la pregunta con un retraso de 5 segundos usando promesas
+            delay(5000)
+                .then(() => {
+                    try {
+                        let estado = guardarPregunta(preguntaRealizada, seleccionado, puntuacionOtorgada)
+                        actualizarEstadoFila(preguntaRealizada, estado)
+                    } catch (error) {
+                        console.error("Error al guardar la pregunta:", error)
+                        actualizarEstadoFila(preguntaRealizada, "ERROR")
+                    }
+                })
+                .finally(() => resetFormulario())
         } else {
             window.alert("Algún valor no es válido. Verifica los campos.")
         }
@@ -98,7 +97,6 @@ function resetFormulario() {
     for (let radio of radios) {
         radio.checked = false
     }
-    //reiniciar los bool
     compPreg = false
     compPunt = false
     compResp = false
@@ -112,17 +110,15 @@ function guardarPregunta(pregunta, respuesta, puntuacion) {
         respuesta,
         puntuacion
     })
-    // Devuelve "OK" si se guarda correctamente
     setCookie("preguntas", JSON.stringify(preguntas), 1)
     return "OK"
 }
 
-// Muestra las preguntas almacenadas en las cookies
-// Si retraso==true pondra un retraso de 5 segundos para mostrar las preguntas ya guardadas
+// Mostrar las preguntas almacenadas en las cookies con o sin retraso
 function mostrarPreguntas(retraso) {
-    if (retraso==true) {
+    if (retraso) {
         textoCarga.textContent = "Cargando preguntas..."
-        setTimeout(cargarPreguntasDesdeCookie, 5000)
+        delay(5000).then(() => cargarPreguntasDesdeCookie())
     } else {
         cargarPreguntasDesdeCookie()
     }
@@ -130,7 +126,7 @@ function mostrarPreguntas(retraso) {
 
 // Carga las preguntas desde las cookies y las muestra en la tabla
 function cargarPreguntasDesdeCookie() {
-    textoCarga.textContent=""
+    textoCarga.textContent = ""
     let preguntas = JSON.parse(getCookie("preguntas") || "[]")
     preguntas.forEach((pregunta, index) => {
         agregarFilaTabla(index + 1, pregunta.pregunta, pregunta.respuesta, pregunta.puntuacion, "OK")
@@ -151,8 +147,7 @@ function agregarFilaTabla(numero, pregunta, respuesta, puntuacion, estado) {
 // Agrega una fila temporal a la tabla con estado "Guardando..."
 function agregarFilaTemporal(pregunta, respuesta, puntuacion) {
     let fila = document.createElement("tr")
-    // Identificar la fila por la pregunta
-    fila.dataset.pregunta = pregunta 
+    fila.dataset.pregunta = pregunta
     fila.innerHTML = `<td>-</td>
         <td>${pregunta}</td>
         <td>${respuesta}</td>
@@ -161,7 +156,7 @@ function agregarFilaTemporal(pregunta, respuesta, puntuacion) {
     tablaPreguntas.appendChild(fila)
 }
 
-// cambiar el estado de la pregunta a OK o Error
+// Cambiar el estado de la pregunta a "OK" o "ERROR"
 function actualizarEstadoFila(pregunta, estado) {
     let filas = tablaPreguntas.querySelectorAll("tr")
     for (let fila of filas) {
@@ -175,7 +170,7 @@ function actualizarEstadoFila(pregunta, estado) {
     }
 }
 
-// codigo cookies
+// Manejo de cookies
 function setCookie(cname, cvalue, exdays) {
     let d = new Date()
     d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000)
